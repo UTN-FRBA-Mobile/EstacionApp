@@ -16,9 +16,7 @@
         android:layout_gravity="end|bottom"
         android:layout_margin="14dp"
         android:src="@android:drawable/ic_menu_mylocation"
-        map:rippleColor="@color/colorPrimary"
-        android:backgroundTint="@color/colorPrimary"
+        android:backgroundTint="@color/primary"
         map:maxImageSize="30dp"
-
         />
 </fragment>

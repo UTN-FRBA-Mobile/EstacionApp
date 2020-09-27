@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#0540DA</color>
-    <color name="colorPrimaryDark">#555FB7</color>
-    <color name="colorAccent">#03DAC5</color>
-    <color name="colorPlaceholder">#CDCDCD</color>
-    <color name="colorWhite">#FFF</color>
+    <color name="primary">#0540DA</color>
+    <color name="primaryDark">#555FB7</color>
+    <color name="accent">#03DAC5</color>
+    <color name="placeholder">#CDCDCD</color>
+    <color name="white">#FFF</color>
+    <color name="red">#FF0000</color>
 </resources>
