@@ -14,10 +14,14 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.bottomsheet.BottomSheetDialog
+import kotlinx.android.synthetic.main.layout_bottom_sheet.view.*
 import java.io.IOException
+import java.util.*
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
@@ -58,7 +62,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         setUpMap()
     }
 
-    override fun onMarkerClick(p0: Marker?): Boolean = false
+    override fun onMarkerClick(marker: Marker): Boolean {
+        val dialog = BottomSheetDialog(this)
+
+        val view = layoutInflater.inflate(R.layout.layout_bottom_sheet, null)
+
+
+        // El getAddress no esta andando
+        view.address.text = getAddress(marker.position)
+
+        dialog.setContentView(view)
+
+        dialog.show()
+
+        return false
+    }
 
     private fun setUpMap() {
         if (ActivityCompat.checkSelfPermission(this,
@@ -74,28 +92,32 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             if (location != null) {
                 lastLocation = location
                 val currentLatLng = LatLng(location.latitude, location.longitude)
+                placeMarkerOnMap(LatLng(-34.5869728, -58.5813661))
+                placeMarkerOnMap(LatLng(-34.5863174, -58.5767453), false)
                 map.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 16f))
             }
         }
     }
 
-    private fun placeMarkerOnMap(location: LatLng) {
+    private fun placeMarkerOnMap(location: LatLng, isEmpty: Boolean = true) {
         val markerOptions = MarkerOptions().position(location)
 
-        val titleStr = getAddress(location)
-        markerOptions.title(titleStr)
+        markerOptions.icon(BitmapDescriptorFactory.fromResource(
+            if (isEmpty) R.drawable.empty_place else R.drawable.reserved_place)
+        )
 
         map.addMarker(markerOptions)
     }
 
     private fun getAddress(latLng: LatLng): String {
-        val geocoder = Geocoder(this)
+        val geocoder = Geocoder(this, Locale.getDefault())
         val addresses: List<Address>?
         val address: Address?
         var addressText = ""
 
         try {
             addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
+
             if (null != addresses && addresses.isNotEmpty()) {
                 address = addresses[0]
                 for (i in 0 until address.maxAddressLineIndex) {
