@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
-<fragment xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:map="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/map"
-    android:name="com.google.android.gms.maps.SupportMapFragment"
+<FrameLayout android:layout_height="match_parent"
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".MapsActivity">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <fragment xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/map"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".MapsActivity">
+    </fragment>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/floatingActionButton2"
@@ -15,8 +19,10 @@
         android:clickable="true"
         android:layout_gravity="end|bottom"
         android:layout_margin="14dp"
-        android:src="@android:drawable/ic_menu_mylocation"
+        android:src="@drawable/ic_baseline_my_location_24"
         android:backgroundTint="@color/primary"
-        map:maxImageSize="30dp"
+        app:maxImageSize="30dp"
+        android:tint="@color/white"
         />
-</fragment>
+
+</FrameLayout>

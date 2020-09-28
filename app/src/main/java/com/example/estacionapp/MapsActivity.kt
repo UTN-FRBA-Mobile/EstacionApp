@@ -57,22 +57,20 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
      */
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
-
         map.setOnMarkerClickListener(this)
-
         setUpMap()
     }
 
     override fun onMarkerClick(marker: Marker): Boolean {
         val dialog = BottomSheetDialog(this)
-
         val view = layoutInflater.inflate(R.layout.layout_bottom_sheet, null)
 
-        // El getAddress no esta andando
+        view.close.setOnClickListener {
+            dialog.dismiss()
+        }
+
         view.address.text = getAddress(marker.position)
-
         dialog.setContentView(view)
-
         dialog.show()
 
         return false
