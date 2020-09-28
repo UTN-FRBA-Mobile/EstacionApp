@@ -5,7 +5,6 @@ import android.location.Address
 import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -20,7 +19,6 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import kotlinx.android.synthetic.main.layout_bottom_sheet.view.*
-import java.io.IOException
 import java.util.*
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
@@ -28,6 +26,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     private lateinit var map: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var lastLocation: Location
+    private lateinit var geocoder: Geocoder
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
@@ -43,6 +42,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         mapFragment.getMapAsync(this)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
+        geocoder = Geocoder(this, Locale.getDefault())
     }
 
     /**
@@ -66,7 +67,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         val dialog = BottomSheetDialog(this)
 
         val view = layoutInflater.inflate(R.layout.layout_bottom_sheet, null)
-
 
         // El getAddress no esta andando
         view.address.text = getAddress(marker.position)
@@ -94,6 +94,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 val currentLatLng = LatLng(location.latitude, location.longitude)
                 placeMarkerOnMap(LatLng(-34.5869728, -58.5813661))
                 placeMarkerOnMap(LatLng(-34.5863174, -58.5767453), false)
+
                 map.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 16f))
             }
         }
@@ -102,7 +103,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     private fun placeMarkerOnMap(location: LatLng, isEmpty: Boolean = true) {
         val markerOptions = MarkerOptions().position(location)
 
-        markerOptions.icon(BitmapDescriptorFactory.fromResource(
+        markerOptions.icon(
+            BitmapDescriptorFactory.fromResource(
             if (isEmpty) R.drawable.empty_place else R.drawable.reserved_place)
         )
 
@@ -110,22 +112,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     }
 
     private fun getAddress(latLng: LatLng): String {
-        val geocoder = Geocoder(this, Locale.getDefault())
-        val addresses: List<Address>?
+        val addresses: List<Address>? = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
         val address: Address?
         var addressText = ""
 
-        try {
-            addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
-
-            if (null != addresses && addresses.isNotEmpty()) {
-                address = addresses[0]
-                for (i in 0 until address.maxAddressLineIndex) {
-                    addressText += if (i == 0) address.getAddressLine(i) else "\n" + address.getAddressLine(i)
-                }
-            }
-        } catch (e: IOException) {
-            Log.e("MapsActivity", e.localizedMessage)
+        if (addresses != null) {
+            address = addresses[0]
+            addressText = address.getAddressLine(0)
         }
 
         return addressText
