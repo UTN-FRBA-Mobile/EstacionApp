@@ -12,11 +12,12 @@
         android:id="@+id/floatingActionButton2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:clickable="true"
         android:layout_gravity="end|bottom"
         android:layout_margin="14dp"
+        android:backgroundTint="#FFEB3B"
+        android:clickable="true"
         android:src="@android:drawable/ic_menu_mylocation"
-        android:backgroundTint="@color/primary"
+        map:backgroundTint="#FFEB3B"
         map:maxImageSize="30dp"
-        />
+        map:rippleColor="#FF9800" />
 </fragment>
