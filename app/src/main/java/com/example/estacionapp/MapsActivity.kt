@@ -47,6 +47,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             val currentLatLng = LatLng(lastLocation.latitude, lastLocation.longitude)
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 16f))
         }
+        this.reportButton.setOnClickListener{
+            //open fragment to report
+        }
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 

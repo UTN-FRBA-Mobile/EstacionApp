@@ -16,13 +16,23 @@
         android:id="@+id/floatingActionButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:clickable="true"
         android:layout_gravity="end|bottom"
         android:layout_margin="14dp"
-        android:src="@drawable/ic_baseline_my_location_24"
         android:backgroundTint="@color/primary"
-        app:maxImageSize="30dp"
+        android:clickable="true"
+        android:src="@drawable/ic_baseline_my_location_24"
         android:tint="@color/white"
-        />
+        app:maxImageSize="30dp" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/reportButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="14dp"
+        android:layout_gravity="start|bottom"
+        android:clickable="true"
+        android:focusable="true"
+        android:src="@drawable/alert"
+        app:backgroundTint="#E53935" />
 
 </FrameLayout>
