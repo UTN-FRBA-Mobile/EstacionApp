@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">EstacionApp</string>
+    <string name="reservar_ahora_button">Reservar ahora</string>
 </resources>
