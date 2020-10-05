@@ -12,27 +12,30 @@
         tools:context=".MapsActivity">
     </fragment>
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/floatingActionButton"
-        android:layout_width="match_parent"
+    <RelativeLayout
         android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
         android:layout_gravity="end|bottom"
-        android:layout_margin="14dp"
-        android:backgroundTint="@color/primary"
-        android:clickable="true"
-        android:src="@drawable/ic_baseline_my_location_24"
-        android:tint="@color/white"
-        app:maxImageSize="30dp" />
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/reportButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="14dp"
-        android:layout_gravity="start|bottom"
-        android:clickable="true"
-        android:focusable="true"
-        android:src="@drawable/alert"
-        app:backgroundTint="#E53935" />
-
+        >
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/reportButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="14dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:src="@drawable/alert"
+            app:backgroundTint="#E53935" />
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/myLocationButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="14dp"
+            android:backgroundTint="@color/primary"
+            android:clickable="true"
+            android:src="@drawable/ic_baseline_my_location_24"
+            android:tint="@color/white"
+            app:maxImageSize="30dp"
+            android:layout_below="@id/reportButton"/>
+    </RelativeLayout>
 </FrameLayout>

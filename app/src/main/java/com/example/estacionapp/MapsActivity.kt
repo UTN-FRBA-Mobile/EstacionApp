@@ -43,7 +43,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
-        this.floatingActionButton.setOnClickListener {
+        this.myLocationButton.setOnClickListener {
             val currentLatLng = LatLng(lastLocation.latitude, lastLocation.longitude)
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 16f))
         }
