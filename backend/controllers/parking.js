@@ -1,5 +1,8 @@
-const getParkings = (req, res) => {
-  console.log(req.io);
+const getParkings = ({ io }, res) => {
+  io.on("connection", (socket) => {
+    socket.emit("locations", [Math.random(), Math.random()]);
+  });
+
   res.status(200).send({ name: "Asd", sarasa: "ASD" });
 };
 
