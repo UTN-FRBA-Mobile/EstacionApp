@@ -5,8 +5,9 @@ const postParkings = ({ app, body: { latitude, longitude } }, res) => {
   const io = app.get("socketio");
 
   if (latitude && longitude) {
-    locations.push({ latitude, longitude });
-    io.to(PARKING_ROOM).emit("locations", locations);
+    const newLocation = { latitude, longitude };
+    locations.push(newLocation);
+    io.to(PARKING_ROOM).emit("locations", newLocation);
     res.status(200).send({ success: true, data: "Parking added" });
   } else {
     res.status(400).send({ success: false, data: "Wrong body" });
