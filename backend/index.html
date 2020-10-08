@@ -27,8 +27,8 @@
         $events.appendChild(newItem("disconnect"));
       });
 
-      socket.on("hello", (counter) => {
-        $events.appendChild(newItem(`hello - ${counter}`));
+      socket.on("locations", (locations) => {
+        $events.appendChild(newItem(`locations - ${locations}`));
       });
     </script>
   </body>

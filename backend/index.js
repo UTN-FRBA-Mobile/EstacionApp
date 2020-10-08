@@ -4,8 +4,9 @@ const cors = require("cors");
 const app = express();
 const socket = require("socket.io");
 require("dotenv").config();
+const { locations } = require("./controllers/parking");
 
-const { PORT, PARKING_ROOM } = process.env;
+const { PORT } = process.env;
 
 const respondWith404 = (_, res) => {
   res.status(404).json({ success: false, data: "Endpoint not found" });
@@ -39,7 +40,7 @@ SOCKET IO
 *********/
 
 const io = socket(server);
-const locations = [];
+app.set("socketio", io);
 
 io.on("connection", (socket) => {
   console.log("Connect");
@@ -48,9 +49,5 @@ io.on("connection", (socket) => {
   if (!room) socket.disconnect();
   else socket.join(room);
 
-  setInterval(() => {
-    console.log(locations);
-    locations.push(Math.random().toFixed(2));
-    io.to(PARKING_ROOM).emit("hello", locations);
-  }, 2000);
+  socket.emit("locations", locations);
 });
