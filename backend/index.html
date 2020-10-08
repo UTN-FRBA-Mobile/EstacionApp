@@ -17,7 +17,9 @@
         return item;
       };
 
-      const socket = io("http://localhost:5000?room=parkings");
+      const socket = io("http://localhost:5000?room=parkings", {
+        transports: ["websocket"],
+      });
 
       socket.on("connect", () => {
         $events.appendChild(newItem("connect"));

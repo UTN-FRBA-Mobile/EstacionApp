@@ -39,7 +39,7 @@ const server = app.listen(PORT || "5000", () => {
 SOCKET IO
 *********/
 
-const io = socket(server);
+const io = socket(server, { transports: ["websocket"] });
 app.set("socketio", io);
 
 io.on("connection", (socket) => {
