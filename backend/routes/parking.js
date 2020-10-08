@@ -1,13 +1,13 @@
 const router = require("express").Router();
-const { getParkings } = require("../controllers/parking");
+const { postParkings } = require("../controllers/parking");
 
 /************
     GET
 *************/
-router.get("/", getParkings);
 
 /************
-  POST
+ POST
  *************/
+router.post("/", postParkings);
 
 module.exports = router;

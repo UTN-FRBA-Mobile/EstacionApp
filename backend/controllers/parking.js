@@ -1,11 +1,10 @@
-const getParkings = ({ io }, res) => {
-  io.on("connection", (socket) => {
-    socket.emit("locations", [Math.random(), Math.random()]);
-  });
-
-  res.status(200).send({ name: "Asd", sarasa: "ASD" });
+const postParkings = ({ io, body: { latitude, longitude } }, res) => {
+  if (latitude && longitude) {
+    locations.push({ latitude, longitude });
+    io.emit("locations", [Math.random(), Math.random()]);
+  }
 };
 
 module.exports = {
-  getParkings,
+  postParkings,
 };
