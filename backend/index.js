@@ -15,11 +15,7 @@ const respondWith404 = (_, res) => {
 var whitelist = [""];
 var corsOptions = {
   origin: function (origin, callback) {
-    if (origin === undefined || whitelist.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS " + origin));
-    }
+    callback(null, true);
   },
 };
 
@@ -48,6 +44,14 @@ io.on("connection", (socket) => {
 
   if (!room) socket.disconnect();
   else socket.join(room);
+  
+  socket.on('connect_error', function(err){
+    console.log(err); 
+  });
 
-  socket.emit("locations", locations);
+  socket.emit("initial_locations", locations);
+
+  socket.on('error', function(err){
+    console.log(err); 
+  });
 });

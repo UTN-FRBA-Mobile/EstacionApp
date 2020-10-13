@@ -7,7 +7,7 @@ const postParkings = ({ app, body: { latitude, longitude } }, res) => {
   if (latitude && longitude) {
     const newLocation = { latitude, longitude };
     locations.push(newLocation);
-    io.to(PARKING_ROOM).emit("locations", newLocation);
+    io.to(PARKING_ROOM).emit("new_locations", newLocation);
     res.status(200).send({ success: true, data: "Parking added" });
   } else {
     res.status(400).send({ success: false, data: "Wrong body" });
