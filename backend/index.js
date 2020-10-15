@@ -2,7 +2,9 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const app = express();
+const socket = require("socket.io");
 require("dotenv").config();
+const { locations } = require("./controllers/parking");
 
 const { PORT } = process.env;
 
@@ -13,11 +15,7 @@ const respondWith404 = (_, res) => {
 var whitelist = [""];
 var corsOptions = {
   origin: function (origin, callback) {
-    if (origin === undefined || whitelist.indexOf(origin) !== -1) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS " + origin));
-    }
+    callback(null, true);
   },
 };
 
@@ -25,11 +23,37 @@ app
   .use(cors(corsOptions))
   .use(bodyParser.json())
   .use(bodyParser.urlencoded({ extended: false }))
+  .use("/parkings", require("./routes/parking.js"))
   .use("/login", require("./routes/login.js"))
   .use("*", respondWith404);
 
-app.listen(PORT, () => {
-  console.log(`Example app listening at http://localhost:${PORT}`);
+const server = app.listen(PORT || "5000", () => {
+  console.log(`Example app listening at http://localhost:${PORT || "5000"}`);
 });
 
-module.exports = app;
+/********
+SOCKET IO
+*********/
+
+const io = socket(server, { transports: ["websocket"] });
+app.set("socketio", io);
+
+io.on("connection", (socket) => {
+  console.log("Connect");
+  const { room } = socket.handshake.query;
+
+  if (!room) socket.disconnect();
+  else socket.join(room);
+
+  socket.on("connect_error", function (err) {
+    console.log(err);
+  });
+
+  const availableLocations = locations.filter((location) => !location.reserved);
+
+  socket.emit("initial_locations", availableLocations);
+
+  socket.on("error", function (err) {
+    console.log(err);
+  });
+});

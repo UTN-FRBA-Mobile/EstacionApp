@@ -18,10 +18,15 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import io.socket.client.IO
+import io.socket.client.Socket
+import io.socket.emitter.Emitter
+import io.socket.engineio.client.transports.WebSocket
 import kotlinx.android.synthetic.main.activity_maps.*
 import kotlinx.android.synthetic.main.layout_bottom_sheet.view.*
+import org.json.JSONArray
+import org.json.JSONObject
 import java.util.*
-
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
@@ -29,6 +34,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     private lateinit var lastLocation: Location
     private lateinit var geocoder: Geocoder
+    private lateinit var socket: Socket
+    private var positions: JSONArray = JSONArray()
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
@@ -51,9 +58,66 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             //open fragment to report
         }
 
+        val opts = IO.Options()
+        opts.transports = arrayOf(WebSocket.NAME)
+        opts.query = "room=parkings"
+
+        try {
+            socket = IO.socket("http://192.168.0.189:5000", opts)
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        socket.on(Socket.EVENT_CONNECT, Emitter.Listener {
+            println("Connect ..............................")
+        })
+
+        socket.on(Socket.EVENT_DISCONNECT, Emitter.Listener {
+            println("Disconnect ..............................")
+        });
+
+        socket.on(Socket.EVENT_CONNECT_ERROR, Emitter.Listener {
+            println("Error ..............................")
+        });
+
+        socket.on(Socket.EVENT_CONNECT_TIMEOUT, Emitter.Listener {
+            println("Timeout ..............................")
+        });
+
+        socket.on("initial_locations", onInitialParkings)
+
+        socket.on("new_locations", onNewParking)
+
+        socket.on("deleted_locations", onDeleteParking)
+
+        socket.connect()
+
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         geocoder = Geocoder(this, Locale.getDefault())
+    }
+
+    var onInitialParkings = Emitter.Listener {
+        val data = JSONArray(it[0].toString())
+        positions = data
+    }
+
+    var onNewParking = Emitter.Listener {
+        val data = JSONObject(it[0].toString())
+        positions.put(data)
+
+        runOnUiThread {
+            placeMarkerOnMap(LatLng(data.getDouble("latitude"), data.getDouble("longitude")))
+        }
+    }
+
+    var onDeleteParking = Emitter.Listener {
+        val deletedId = it[0]
+
+        for (i in 0 until positions.length()) {
+            val item = positions.getJSONObject(i)
+            if (item.get("id") == deletedId) positions.remove(i)
+        }
     }
 
     /**
@@ -101,8 +165,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             if (location != null) {
                 lastLocation = location
                 val currentLatLng = LatLng(location.latitude, location.longitude)
-                placeMarkerOnMap(LatLng(-34.5869728, -58.5813661))
-                placeMarkerOnMap(LatLng(-34.5863174, -58.5767453), false)
+
+                for (i in 0 until positions.length()) {
+                    val item = positions.getJSONObject(i)
+                    placeMarkerOnMap(LatLng(item.getDouble("latitude"), item.getDouble("longitude")))
+                }
+
+                // placeMarkerOnMap(LatLng(-34.5863174, -58.5767453), false)
 
                 map.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 16f))
             }
@@ -131,5 +200,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         }
 
         return addressText
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        socket.disconnect()
+
+        socket.off("locations", onNewParking)
     }
 }

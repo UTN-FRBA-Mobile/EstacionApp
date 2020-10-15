@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Minimal working example</title>
+  </head>
+  <body>
+    <ul id="events"></ul>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
+    <script>
+      const $events = document.getElementById("events");
+
+      const newItem = (content) => {
+        const item = document.createElement("li");
+        item.innerText = content;
+        return item;
+      };
+
+      const socket = io("http://192.168.0.189:5000?room=parkings", {
+        transports: ["websocket"],
+      });
+
+      socket.on("connect", () => {
+        $events.appendChild(newItem("connect"));
+      });
+
+      socket.on("disconnect", () => {
+        $events.appendChild(newItem("disconnect"));
+      });
+
+      socket.on("locations", (locations) => {
+        $events.appendChild(newItem(`locations - ${locations}`));
+      });
+    </script>
+  </body>
+</html>
