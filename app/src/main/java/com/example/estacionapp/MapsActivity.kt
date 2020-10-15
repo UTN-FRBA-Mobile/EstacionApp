@@ -88,6 +88,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
         socket.on("new_locations", onNewParking)
 
+        socket.on("deleted_locations", onDeleteParking)
+
         socket.connect()
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
@@ -106,6 +108,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
         runOnUiThread {
             placeMarkerOnMap(LatLng(data.getDouble("latitude"), data.getDouble("longitude")))
+        }
+    }
+
+    var onDeleteParking = Emitter.Listener {
+        val deletedId = it[0]
+
+        for (i in 0 until positions.length()) {
+            val item = positions.getJSONObject(i)
+            if (item.get("id") == deletedId) positions.remove(i)
         }
     }
 
@@ -160,7 +171,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                     placeMarkerOnMap(LatLng(item.getDouble("latitude"), item.getDouble("longitude")))
                 }
 
-                placeMarkerOnMap(LatLng(-34.5863174, -58.5767453), false)
+                // placeMarkerOnMap(LatLng(-34.5863174, -58.5767453), false)
 
                 map.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 16f))
             }

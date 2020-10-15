@@ -44,14 +44,16 @@ io.on("connection", (socket) => {
 
   if (!room) socket.disconnect();
   else socket.join(room);
-  
-  socket.on('connect_error', function(err){
-    console.log(err); 
+
+  socket.on("connect_error", function (err) {
+    console.log(err);
   });
 
-  socket.emit("initial_locations", locations);
+  const availableLocations = locations.filter((location) => !location.reserved);
 
-  socket.on('error', function(err){
-    console.log(err); 
+  socket.emit("initial_locations", availableLocations);
+
+  socket.on("error", function (err) {
+    console.log(err);
   });
 });
