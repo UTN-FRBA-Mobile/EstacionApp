@@ -53,6 +53,13 @@ io.on("connection", (socket) => {
 
   socket.emit("initial_locations", availableLocations);
 
+  socket.on("reserve_location", ({ id }) => {
+    if (!id) return;
+    const deletedLocation = locations.find((location) => location.id === +id);
+    if (!deletedLocation) return;
+    deletedLocation.reserved = true;
+  });
+
   socket.on("error", function (err) {
     console.log(err);
   });

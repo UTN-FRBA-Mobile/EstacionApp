@@ -14,6 +14,7 @@
         android:layout_height="wrap_content"
         >
         <TextView
+            android:id="@+id/title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Lugar libre"
@@ -75,6 +76,7 @@
     <com.google.android.material.button.MaterialButton
         android:id="@+id/reservarAhoraButton"
         android:layout_width="280dp"
+        android:tag="@+id/positionId"
         android:layout_height="52dp"
         app:cornerRadius="20dp"
         android:theme="@style/AppTheme"

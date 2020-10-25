@@ -5,8 +5,10 @@ import android.location.Address
 import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -36,6 +38,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     private lateinit var geocoder: Geocoder
     private lateinit var socket: Socket
     private var positions: JSONArray = JSONArray()
+    private var reservedPosition: JSONObject? = null
+    private lateinit var dialog: BottomSheetDialog
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
@@ -116,7 +120,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
         for (i in 0 until positions.length()) {
             val item = positions.getJSONObject(i)
-            if (item.get("id") == deletedId) positions.remove(i)
+            if (item.get("id") == deletedId && deletedId != reservedPosition?.get("id")) positions.remove(i)
         }
     }
 
@@ -136,11 +140,31 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     }
 
     override fun onMarkerClick(marker: Marker): Boolean {
-        val dialog = BottomSheetDialog(this)
+        dialog = BottomSheetDialog(this)
         val view = layoutInflater.inflate(R.layout.layout_bottom_sheet, null)
 
         view.close.setOnClickListener {
             dialog.dismiss()
+        }
+
+        for (i in 0 until positions.length()) {
+            val item = positions.getJSONObject(i)
+            if (item.get("latitude") == marker.position.latitude && item.get("longitude") == marker.position.longitude) {
+                view.reservarAhoraButton.tag = item.get("id")
+                val isReserved = item.get("id") == reservedPosition?.get("id")
+                if (isReserved) {
+                    view.title.text = "Lugar reservado"
+                    view.reservarAhoraButton.text = "Cancelar reserva"
+                    view.reservarAhoraButton.setBackgroundColor(ContextCompat.getColor(this, R.color.white))
+                    view.reservarAhoraButton.strokeColor = ContextCompat.getColorStateList(this, R.color.primary)
+                    view.reservarAhoraButton.strokeWidth = 1
+                    view.reservarAhoraButton.setTextColor(ContextCompat.getColor(this, R.color.primary))
+                }
+
+                view.reservarAhoraButton.setOnClickListener {
+                    if (isReserved) cancelParking(view.reservarAhoraButton) else reserveParking(view.reservarAhoraButton)
+                }
+            }
         }
 
         view.address.text = getAddress(marker.position)
@@ -208,5 +232,30 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         socket.disconnect()
 
         socket.off("locations", onNewParking)
+    }
+
+    private fun reserveParking(view: View) {
+        val positionId = view.tag as Int
+        val body = JSONObject()
+        body.put("id", positionId)
+
+        socket.emit("reserve_location", body)
+
+        for (i in 0 until positions.length()) {
+            val item = positions.getJSONObject(i)
+            if (item.get("id") == positionId) {
+                reservedPosition = item
+                dialog.dismiss()
+                runOnUiThread {
+                    placeMarkerOnMap(LatLng(item.getDouble("latitude"), item.getDouble("longitude")), false)
+                }
+            }
+        }
+    }
+
+    private fun cancelParking(view: View) {
+        val positionId = view.tag as Int
+        val body = JSONObject()
+        body.put("id", positionId)
     }
 }
