@@ -37,8 +37,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     private lateinit var lastLocation: Location
     private lateinit var geocoder: Geocoder
     private lateinit var socket: Socket
-    private var positions: JSONArray = JSONArray()
-    private var reservedPosition: JSONObject? = null
+    private var positions: ArrayList<Marker> = ArrayList()
+    private var reservedPosition: Marker? = null
     private lateinit var dialog: BottomSheetDialog
 
     companion object {
@@ -101,14 +101,22 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         geocoder = Geocoder(this, Locale.getDefault())
     }
 
-    var onInitialParkings = Emitter.Listener {
+    private var onInitialParkings = Emitter.Listener {
         val data = JSONArray(it[0].toString())
-        positions = data
+
+        for (i in 0 until data.length()) {
+            val item = data.getJSONObject(i)
+            placeMarkerOnMap(
+                LatLng(
+                    item.getDouble("latitude"),
+                    item.getDouble("longitude")
+                )
+            )
+        }
     }
 
-    var onNewParking = Emitter.Listener {
+    private var onNewParking = Emitter.Listener {
         val data = JSONObject(it[0].toString())
-        positions.put(data)
 
         runOnUiThread {
             placeMarkerOnMap(LatLng(data.getDouble("latitude"), data.getDouble("longitude")))
@@ -117,16 +125,29 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
     private fun areEqual(position1: JSONObject?, position2: JSONObject?): Boolean {
         if (position1 == null || position2 == null) return false;
-        return position1.get("latitude") == position2.get("latitude") && position1.get("longitude") == position2.get("longitude")
+        return position1.get("latitude") == position2.get("latitude") && position1.get("longitude") == position2.get(
+            "longitude"
+        )
     }
 
-    var onDeleteParking = Emitter.Listener {
+    private fun areEqual(position1: Marker?, position2: JSONObject?): Boolean {
+        if (position1 == null || position2 == null) return false;
+        return position1.position.latitude == position2.get("latitude") && position1.position.longitude == position2.get(
+            "longitude"
+        )
+    }
+
+    private fun areEqual(position1: Marker?, position2: Marker?): Boolean {
+        if (position1 == null || position2 == null) return false;
+        return position1.position.latitude == position2.position.latitude && position1.position.longitude == position2.position.longitude
+    }
+
+    private var onDeleteParking = Emitter.Listener {
         val deletedPosition = JSONObject(it[0].toString())
 
-        for (i in 0 until positions.length()) {
-            val item = positions.getJSONObject(i)
-            if (areEqual(deletedPosition, item) && !areEqual(deletedPosition, reservedPosition)) positions.remove(i)
-        }
+        val deletedMarker = positions.find { marker -> areEqual(marker, deletedPosition) }
+        deletedMarker?.remove()
+        positions.remove(deletedMarker)
     }
 
     /**
@@ -152,25 +173,34 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             dialog.dismiss()
         }
 
-        for (i in 0 until positions.length()) {
-            val item = positions.getJSONObject(i)
-            if (item.get("latitude") == marker.position.latitude && item.get("longitude") == marker.position.longitude) {
-                view.reservarAhoraButton.tag = item
-                val isReserved = areEqual(item, reservedPosition)
-                if (isReserved) {
-                    view.title.text = "Lugar reservado"
-                    view.reservarAhoraButton.text = "Cancelar reserva"
-                    view.reservarAhoraButton.setBackgroundColor(ContextCompat.getColor(this, R.color.white))
-                    view.reservarAhoraButton.strokeColor = ContextCompat.getColorStateList(this, R.color.primary)
-                    view.reservarAhoraButton.strokeWidth = 1
-                    view.reservarAhoraButton.setTextColor(ContextCompat.getColor(this, R.color.primary))
-                }
-
-                view.reservarAhoraButton.setOnClickListener {
-                    if (isReserved) cancelParking(view.reservarAhoraButton) else reserveParking(view.reservarAhoraButton)
-                }
-            }
+        view.reservarAhoraButton.tag = marker
+        val isReserved = areEqual(marker, reservedPosition)
+        if (isReserved) {
+            view.title.text = "Lugar reservado"
+            view.reservarAhoraButton.text = "Cancelar reserva"
+            view.reservarAhoraButton.setBackgroundColor(
+                ContextCompat.getColor(
+                    this,
+                    R.color.white
+                )
+            )
+            view.reservarAhoraButton.strokeColor = ContextCompat.getColorStateList(
+                this,
+                R.color.primary
+            )
+            view.reservarAhoraButton.strokeWidth = 1
+            view.reservarAhoraButton.setTextColor(
+                ContextCompat.getColor(
+                    this,
+                    R.color.primary
+                )
+            )
         }
+
+        view.reservarAhoraButton.setOnClickListener {
+            if (isReserved) cancelParking(view.reservarAhoraButton) else reserveParking(view.reservarAhoraButton)
+        }
+
 
         view.address.text = getAddress(marker.position)
         dialog.setContentView(view)
@@ -180,10 +210,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     }
 
     private fun setUpMap() {
-        if (ActivityCompat.checkSelfPermission(this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this,
-                arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), LOCATION_PERMISSION_REQUEST_CODE)
+        if (ActivityCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION
+            ) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
+                LOCATION_PERMISSION_REQUEST_CODE
+            )
             return
         }
 
@@ -195,13 +230,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 lastLocation = location
                 val currentLatLng = LatLng(location.latitude, location.longitude)
 
-                for (i in 0 until positions.length()) {
-                    val item = positions.getJSONObject(i)
-                    placeMarkerOnMap(LatLng(item.getDouble("latitude"), item.getDouble("longitude")))
-                }
-
-                // placeMarkerOnMap(LatLng(-34.5863174, -58.5767453), false)
-
                 map.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 16f))
             }
         }
@@ -212,14 +240,20 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
         markerOptions.icon(
             BitmapDescriptorFactory.fromResource(
-            if (isEmpty) R.drawable.empty_place else R.drawable.reserved_place)
+                if (isEmpty) R.drawable.empty_place else R.drawable.reserved_place
+            )
         )
 
-        map.addMarker(markerOptions)
+        val marker = map.addMarker(markerOptions)
+        positions.add(marker)
     }
 
     private fun getAddress(latLng: LatLng): String {
-        val addresses: List<Address>? = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1)
+        val addresses: List<Address>? = geocoder.getFromLocation(
+            latLng.latitude,
+            latLng.longitude,
+            1
+        )
         val address: Address?
         var addressText = ""
 
@@ -240,23 +274,28 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     }
 
     private fun reserveParking(view: View) {
-        val position = view.tag as JSONObject
+        val marker = view.tag as Marker
         val body = JSONObject()
-        body.put("latitude", position.get("latitude"))
-        body.put("longitude", position.get("longitude"))
+        body.put("latitude", marker.position.latitude)
+        body.put("longitude", marker.position.longitude)
 
         socket.emit("reserve_location", body)
 
-        for (i in 0 until positions.length()) {
-            val item = positions.getJSONObject(i)
-            if (areEqual(position, item)) {
-                reservedPosition = item
-                dialog.dismiss()
-                runOnUiThread {
-                    placeMarkerOnMap(LatLng(item.getDouble("latitude"), item.getDouble("longitude")), false)
-                }
-            }
+        reservedPosition = marker
+        dialog.dismiss()
+
+        marker.remove()
+        positions.remove(marker)
+
+        runOnUiThread {
+            placeMarkerOnMap(
+                LatLng(
+                    marker.position.latitude,
+                    marker.position.longitude
+                ), false
+            )
         }
+
     }
 
     private fun cancelParking(view: View) {
