@@ -32,7 +32,10 @@ const deleteParking = ({ app, params: { id } }, res) => {
       return;
     }
     deletedLocation.reserved = true;
-    io.to(PARKING_ROOM).emit("deleted_locations", id);
+    io.to(PARKING_ROOM).emit("deleted_locations", {
+      latitude: deletedLocation.latitude,
+      longitude: deletedLocation.longitude,
+    });
     res.status(200).send({ success: true, data: "Parking deleted" });
   } else {
     res.status(400).send({ success: false, data: "Wrong body" });

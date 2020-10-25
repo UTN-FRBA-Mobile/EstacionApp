@@ -53,9 +53,12 @@ io.on("connection", (socket) => {
 
   socket.emit("initial_locations", availableLocations);
 
-  socket.on("reserve_location", ({ id }) => {
-    if (!id) return;
-    const deletedLocation = locations.find((location) => location.id === +id);
+  socket.on("reserve_location", ({ latitude, longitude }) => {
+    if (!latitude || !longitude) return;
+    const deletedLocation = locations.find(
+      (location) =>
+        location.latitude === +latitude && location.longitude === +longitude
+    );
     if (!deletedLocation) return;
     deletedLocation.reserved = true;
   });

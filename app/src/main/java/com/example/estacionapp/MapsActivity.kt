@@ -67,7 +67,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         opts.query = "room=parkings"
 
         try {
-            socket = IO.socket("http://192.168.0.189:5000", opts)
+            socket = IO.socket("http://192.168.1.41:5000", opts)
         } catch (e: Exception) {
             e.printStackTrace()
         }
@@ -115,12 +115,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         }
     }
 
+    private fun areEqual(position1: JSONObject?, position2: JSONObject?): Boolean {
+        if (position1 == null || position2 == null) return false;
+        return position1.get("latitude") == position2.get("latitude") && position1.get("longitude") == position2.get("longitude")
+    }
+
     var onDeleteParking = Emitter.Listener {
-        val deletedId = it[0]
+        val deletedPosition = JSONObject(it[0].toString())
 
         for (i in 0 until positions.length()) {
             val item = positions.getJSONObject(i)
-            if (item.get("id") == deletedId && deletedId != reservedPosition?.get("id")) positions.remove(i)
+            if (areEqual(deletedPosition, item) && !areEqual(deletedPosition, reservedPosition)) positions.remove(i)
         }
     }
 
@@ -150,8 +155,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         for (i in 0 until positions.length()) {
             val item = positions.getJSONObject(i)
             if (item.get("latitude") == marker.position.latitude && item.get("longitude") == marker.position.longitude) {
-                view.reservarAhoraButton.tag = item.get("id")
-                val isReserved = item.get("id") == reservedPosition?.get("id")
+                view.reservarAhoraButton.tag = item
+                val isReserved = areEqual(item, reservedPosition)
                 if (isReserved) {
                     view.title.text = "Lugar reservado"
                     view.reservarAhoraButton.text = "Cancelar reserva"
@@ -235,15 +240,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     }
 
     private fun reserveParking(view: View) {
-        val positionId = view.tag as Int
+        val position = view.tag as JSONObject
         val body = JSONObject()
-        body.put("id", positionId)
+        body.put("latitude", position.get("latitude"))
+        body.put("longitude", position.get("longitude"))
 
         socket.emit("reserve_location", body)
 
         for (i in 0 until positions.length()) {
             val item = positions.getJSONObject(i)
-            if (item.get("id") == positionId) {
+            if (areEqual(position, item)) {
                 reservedPosition = item
                 dialog.dismiss()
                 runOnUiThread {
