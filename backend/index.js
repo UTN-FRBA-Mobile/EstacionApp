@@ -61,6 +61,18 @@ io.on("connection", (socket) => {
     );
     if (!deletedLocation) return;
     deletedLocation.reserved = true;
+    socket.emit("deleted_locations", { latitude, longitude });
+  });
+
+  socket.on("cancel_reserve_location", ({ latitude, longitude }) => {
+    if (!latitude || !longitude) return;
+    const canceledLocation = locations.find(
+      (location) =>
+        location.latitude === +latitude && location.longitude === +longitude
+    );
+    if (!canceledLocation) return;
+    canceledLocation.reserved = false;
+    socket.emit("new_locations", canceledLocation);
   });
 
   socket.on("error", function (err) {

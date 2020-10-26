@@ -5,14 +5,22 @@ const locations = [
     longitude: -58.5824661,
     latitude: -34.6055728,
     reserved: false,
+    photos: [
+      "https://www.centediario.com/wp-content/uploads/2016/06/jardin-baleado.jpg",
+      "https://www.centediario.com/wp-content/uploads/2016/06/jardin-baleado.jpg",
+      "https://www.centediario.com/wp-content/uploads/2016/06/jardin-baleado.jpg",
+    ],
   },
 ];
 
-const postParkings = ({ app, body: { id, latitude, longitude } }, res) => {
+const postParkings = (
+  { app, body: { id, latitude, longitude, photos } },
+  res
+) => {
   const io = app.get("socketio");
 
-  if (latitude && longitude && id) {
-    const newLocation = { id, latitude, longitude, reserved: false };
+  if (latitude && longitude && id && photos) {
+    const newLocation = { id, latitude, longitude, photos, reserved: false };
     const location = locations.find((location) => location.id === id);
     location ? (location.reserved = false) : locations.push(newLocation);
     io.to(PARKING_ROOM).emit("new_locations", newLocation);
