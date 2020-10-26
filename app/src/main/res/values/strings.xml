@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">EstacionApp</string>
     <string name="reservar_ahora_button">Reservar ahora</string>
+    <string name="lugar_libre">Lugar libre</string>
+    <string name="lugar_reservado">Lugar reservado</string>
+    <string name="cancelar_reserva">Cancelar reserva</string>
+    <string name="confirmacion_reserva">Se reservó el lugar indicado!</string>
+    <string name="confirmacion_reserva_cancelada">Su reserva ha sido cancelada.</string>
 </resources>
