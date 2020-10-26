@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:background="@color/white"
+    >
+
+    <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/rounded_coche_image"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:src="@drawable/coche"
+        app:civ_border_color="#FF000000"
+        app:civ_border_width="5dp" />
+
+    <EditText
+        android:id="@+id/txtUser"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:backgroundTint="@color/primaryDark"
+        android:hint="Email"
+        android:inputType="textEmailAddress"
+        android:textCursorDrawable="@null"></EditText>
+
+    <EditText
+        android:id="@+id/txtPassword"
+        android:layout_width="250dp"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:backgroundTint="@color/primaryDark"
+        android:hint="Contraseña"
+        android:inputType="textPassword"
+        android:textCursorDrawable="@null"></EditText>
+
+    <Button
+        android:id="@+id/okButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:background="@color/accent"
+        android:onClick="login"
+        android:text="Iniciar sesión"
+        android:textColor="@android:color/white" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:backgroundTint="@color/primaryDark"
+        android:gravity="center_horizontal"
+        android:onClick="forgotPassword"
+        android:text="¿Olvidaste tú contraseña?" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="20dp"
+        android:backgroundTint="@color/primaryDark"
+        android:gravity="center_horizontal"
+        android:onClick="register"
+        android:text="Registrar"
+        />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:indeterminate="true"/>
+
+
+</LinearLayout>
