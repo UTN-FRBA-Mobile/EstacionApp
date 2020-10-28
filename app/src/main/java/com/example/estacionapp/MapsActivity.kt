@@ -1,16 +1,23 @@
 package com.example.estacionapp
 
+import android.app.Activity
+import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
+import com.example.estacionapp.UploadApis
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -29,10 +36,27 @@ import io.socket.emitter.Emitter
 import io.socket.engineio.client.transports.WebSocket
 import kotlinx.android.synthetic.main.activity_maps.*
 import kotlinx.android.synthetic.main.layout_bottom_sheet.view.*
+import okhttp3.MediaType.Companion
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.ResponseBody
 import org.json.JSONArray
 import org.json.JSONObject
+import retrofit2.Call
+import retrofit2.Response
+import retrofit2.Retrofit
+import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
+//Agregado
+import okhttp3.*
+import okhttp3.MediaType.Companion.parse
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.http.Multipart
 
 fun Marker.areEqualTo(otherMarker: Marker?) = otherMarker != null && this.position == otherMarker.position
 fun Marker.areEqualTo(latLng: LatLng?) = latLng != null && this.position == latLng
@@ -44,6 +68,10 @@ fun JSONArray.toArrayListOfStrings(): ArrayList<String> {
     return photos
 }
 
+private const val FILE_NAME="photo.jpg"
+private const val REQUEST_CODE=42
+private const val BASE_URL="http://192.168.0.2:8080"
+
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
     private lateinit var map: GoogleMap
@@ -54,6 +82,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     private var positions: ArrayList<Pair<Marker, ArrayList<String>>> = ArrayList()
     private var reservedPosition: Marker? = null
     private lateinit var dialog: BottomSheetDialog
+    private lateinit var photoFile: File
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
@@ -287,5 +316,68 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         super.onDestroy()
         socket.disconnect()
         socket.off("locations", onNewParking)
+    }
+
+    private fun reportar_sensor(){
+        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        photoFile = getPhotoFile(FILE_NAME)
+        //takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoFile)
+        var fileProvider = FileProvider.getUriForFile(this, "com.example.fileprovider", photoFile)
+        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider)
+
+        if (takePictureIntent.resolveActivity(this.packageManager) != null)
+            startActivityForResult(takePictureIntent, REQUEST_CODE)
+        else
+            Toast.makeText(this,"Unable to open camera", Toast.LENGTH_LONG).show()
+    }
+
+    private fun getPhotoFile(fileName: String): File {
+        val storageDirectory = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        return File.createTempFile(fileName, ".jpg", storageDirectory)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK){
+            //val takenImage = data?.extras?.get("data") as Bitmap
+            uploadImage(photoFile)
+            //val takenImage = BitmapFactory.decodeFile(photoFile.absolutePath)
+            //imageView.setImageBitmap(takenImage)
+            // file:///A/B/Pictures/photo.jpg
+        }
+        else
+            super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    private fun uploadImage(file : File) {
+        //var requestBody : RequestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
+        var requestBody: RequestBody = RequestBody.create("image/*".toMediaTypeOrNull(), file)
+        //var requestBody: RequestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
+        var part: MultipartBody.Part =
+            MultipartBody.Part.createFormData("newimage", file.name, requestBody)
+        var user_id: RequestBody = "1113".toRequestBody("text/plain".toMediaTypeOrNull())
+        var retrofit: Retrofit = getRetrofit()
+        var uploadApis: UploadApis = retrofit.create(UploadApis::class.java)
+        var call: Call<ResponseBody> = uploadApis.uploadImage(part, user_id)
+        call.enqueue(object : retrofit2.Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                var result: String = "Upload Resp NOT OK"
+                if (response.isSuccessful())
+                    result = "image uploaded"
+                Toast.makeText(applicationContext, result, Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Toast.makeText(applicationContext, "Error Uploading image", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        })
+    }
+
+    public fun  getRetrofit() : Retrofit{
+        var okhttpclient : OkHttpClient = OkHttpClient.Builder().build()
+        var retrofit : Retrofit = Retrofit.Builder()
+            .baseUrl(BASE_URL)
+            .addConverterFactory(GsonConverterFactory.create()).client(okhttpclient).build()
+        return retrofit
     }
 }
