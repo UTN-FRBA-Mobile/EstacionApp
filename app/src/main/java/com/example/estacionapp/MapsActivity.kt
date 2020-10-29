@@ -1,8 +1,8 @@
 package com.example.estacionapp
 
 import android.app.Activity
-import android.content.Intent
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.location.Address
@@ -20,18 +20,13 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
-import com.example.estacionapp.utils.*
 import androidx.core.location.LocationManagerCompat
+import com.example.estacionapp.utils.areEqualTo
+import com.example.estacionapp.utils.toArrayListOfStrings
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.*
+import com.google.android.gms.maps.model.*
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.squareup.picasso.Picasso
 import io.socket.client.IO
@@ -58,6 +53,15 @@ import java.util.*
 import kotlin.collections.ArrayList
 
 private const val REQUEST_CODE = 42
+
+fun getCameraUpdate(location: LatLng): CameraUpdate {
+    val cameraPosition = CameraPosition.builder()
+        .zoom(16F)
+        .tilt(45F)
+        .target(LatLng(location.latitude, location.longitude))
+        .build()
+    return CameraUpdateFactory.newCameraPosition(cameraPosition)
+}
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
 
@@ -97,7 +101,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 dialog.show()
             } else if (lastLocation !== null) {
                 currentLatLng = LatLng(lastLocation!!.latitude, lastLocation!!.longitude)
-                map.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 16f))
+                map.animateCamera(getCameraUpdate(currentLatLng))
             }
         }
 
@@ -235,14 +239,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                     .putFloat("lastLatitude", location.latitude.toFloat())
                     .putFloat("lastLongitude", location.longitude.toFloat())
                     .apply()
-                map.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), 16f))
+
+                map.animateCamera(getCameraUpdate(LatLng(location.latitude, location.longitude)))
             } else {
                 val locationPreferences = LatLng(
                     preferences.getFloat("lastLatitude", 0F).toDouble(),
                     preferences.getFloat("lastLongitude", 0F).toDouble()
                 )
                 if (locationPreferences.latitude != .0 && locationPreferences.longitude != .0) {
-                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(locationPreferences, 16f))
+                    map.animateCamera(getCameraUpdate(locationPreferences))
                 }
             }
         }
