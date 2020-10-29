@@ -10,7 +10,7 @@ import retrofit2.http.Part
 
 interface UploadApis {
     @Multipart
-    @POST("upload")
+    @POST("reports")
     fun uploadImage(@Part part : MultipartBody.Part, @Part("user_id") requestBody : RequestBody) : Call<ResponseBody>
 
 }
