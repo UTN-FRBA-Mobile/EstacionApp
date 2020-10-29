@@ -39,11 +39,10 @@ class RegisterActivity : AppCompatActivity() {
     }
 
     private fun createNewUser(){
-        val name:String = txtName.text.toString()
-        val email:String = txtEmail.text.toString()
-        val password:String = txtPassword.text.toString()
+        val email: String = txtEmail.text.toString()
+        val password: String = txtPassword.text.toString()
 
-        if(!TextUtils.isEmpty(name) && !TextUtils.isEmpty(email)
+        if(!TextUtils.isEmpty(email) && !TextUtils.isEmpty(password)
             && !TextUtils.isEmpty(password)){
 
             progressBar.visibility = View.VISIBLE

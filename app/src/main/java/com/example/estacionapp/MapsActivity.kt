@@ -1,5 +1,6 @@
 package com.example.estacionapp
 
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
@@ -59,7 +60,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             map.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 16f))
         }
         this.reportButton.setOnClickListener{
-            //open fragment to report
+            startActivity(Intent(this, AuthActivity::class.java))
         }
 
         val opts = IO.Options()

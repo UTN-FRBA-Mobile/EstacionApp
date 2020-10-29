@@ -20,8 +20,6 @@ import com.google.firebase.firestore.FirebaseFirestore
 
 class AuthActivity : AppCompatActivity() {
 
-    val db = FirebaseFirestore.getInstance()
-
     private lateinit var txtUser: EditText
     private lateinit var txtPassword: EditText
     private lateinit var progressBar: ProgressBar
@@ -81,6 +79,7 @@ class AuthActivity : AppCompatActivity() {
                         action()
                     } else {
                         Toast.makeText(this, "Error en la Autenticación", Toast.LENGTH_LONG).show()
+                        progressBar.visibility = View.INVISIBLE
                     }
                 }
 
