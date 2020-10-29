@@ -1,16 +1,21 @@
 package com.example.estacionapp
 
+import android.content.Context
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.location.Address
 import android.location.Geocoder
 import android.location.Location
+import android.location.LocationManager
 import android.os.Bundle
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.location.LocationManagerCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -48,12 +53,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
     private lateinit var map: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
-    private lateinit var lastLocation: Location
+    private var lastLocation: Location? = null
     private lateinit var geocoder: Geocoder
     private lateinit var socket: Socket
     private var positions: ArrayList<Pair<Marker, ArrayList<String>>> = ArrayList()
     private var reservedPosition: Marker? = null
     private lateinit var dialog: BottomSheetDialog
+    private lateinit var preferences: SharedPreferences
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
@@ -67,9 +73,21 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             .findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
+        preferences = getSharedPreferences("preferences", Context.MODE_PRIVATE)
+
         this.myLocationButton.setOnClickListener {
-            val currentLatLng = LatLng(lastLocation.latitude, lastLocation.longitude)
-            map.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 16f))
+            val currentLatLng: LatLng
+            if (!LocationManagerCompat.isLocationEnabled(getSystemService(Context.LOCATION_SERVICE) as LocationManager)) {
+                val dialog = AlertDialog.Builder(this)
+                    .setTitle("Ubicación desactivada")
+                    .setMessage("Debes activar la ubicación para poder ver los lugares libres cercanos")
+                    .setPositiveButton("OK", null)
+                    .create()
+                dialog.show()
+            } else if (lastLocation !== null) {
+                currentLatLng = LatLng(lastLocation!!.latitude, lastLocation!!.longitude)
+                map.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 16f))
+            }
         }
 
         this.reportButton.setOnClickListener{
@@ -210,8 +228,20 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         fusedLocationClient.lastLocation.addOnSuccessListener(this) { location ->
             if (location != null) {
                 lastLocation = location
-                val currentLatLng = LatLng(location.latitude, location.longitude)
-                map.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 16f))
+                preferences
+                    .edit()
+                    .putFloat("lastLatitude", location.latitude.toFloat())
+                    .putFloat("lastLongitude", location.longitude.toFloat())
+                    .apply()
+                map.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), 16f))
+            } else {
+                val locationPreferences = LatLng(
+                    preferences.getFloat("lastLatitude", 0F).toDouble(),
+                    preferences.getFloat("lastLongitude", 0F).toDouble()
+                )
+                if (locationPreferences.latitude != .0 && locationPreferences.longitude != .0) {
+                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(locationPreferences, 16f))
+                }
             }
         }
     }
