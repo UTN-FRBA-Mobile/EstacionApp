@@ -74,6 +74,8 @@ fastlane/screenshots
 fastlane/test_output
 fastlane/readme.md
 
+uploads
+
 # Version control
 vcs.xml
 

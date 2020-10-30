@@ -24,7 +24,7 @@ app
   .use(bodyParser.json())
   .use(bodyParser.urlencoded({ extended: false }))
   .use("/parkings", require("./routes/parking.js"))
-  .use("/login", require("./routes/login.js"))
+  .use("/reports", require("./routes/report.js"))
   .use("*", respondWith404);
 
 const server = app.listen(PORT || "5000", () => {
