@@ -14,4 +14,9 @@
     <string name="signup_success">Te enviamos un mail para activar tu cuenta</string>
     <string name="signup_error">Ocurrió un error al crear su cuenta</string>
     <string name="login_error">Ocurrió un error al iniciar sesión</string>
+    <string name="lugar_libre">Lugar libre</string>
+    <string name="lugar_reservado">Lugar reservado</string>
+    <string name="cancelar_reserva">Cancelar reserva</string>
+    <string name="confirmacion_reserva">Se reservó el lugar indicado!</string>
+    <string name="confirmacion_reserva_cancelada">Su reserva ha sido cancelada.</string>
 </resources>

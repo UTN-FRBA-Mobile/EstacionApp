@@ -53,11 +53,26 @@ io.on("connection", (socket) => {
 
   socket.emit("initial_locations", availableLocations);
 
-  socket.on("reserve_location", ({ id }) => {
-    if (!id) return;
-    const deletedLocation = locations.find((location) => location.id === +id);
+  socket.on("reserve_location", ({ latitude, longitude }) => {
+    if (!latitude || !longitude) return;
+    const deletedLocation = locations.find(
+      (location) =>
+        location.latitude === +latitude && location.longitude === +longitude
+    );
     if (!deletedLocation) return;
     deletedLocation.reserved = true;
+    socket.emit("deleted_locations", { latitude, longitude });
+  });
+
+  socket.on("cancel_reserve_location", ({ latitude, longitude }) => {
+    if (!latitude || !longitude) return;
+    const canceledLocation = locations.find(
+      (location) =>
+        location.latitude === +latitude && location.longitude === +longitude
+    );
+    if (!canceledLocation) return;
+    canceledLocation.reserved = false;
+    socket.emit("new_locations", canceledLocation);
   });
 
   socket.on("error", function (err) {
