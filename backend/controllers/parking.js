@@ -26,7 +26,16 @@ const postParkings = (
     io.to(PARKING_ROOM).emit("new_locations", newLocation);
     res.status(201).send({ success: true, data: "Parking added" });
   } else {
-    res.status(400).send({ success: false, data: "Wrong body" });
+    let errors = [];
+
+    if (!latitude)
+      errors.push({ field: "latitude", error: "Complete la latitud" });
+    if (!longitude)
+      errors.push({ field: "longitude", error: "Complete la longitude" });
+    if (!id) errors.push({ field: "id", error: "Complete el id" });
+    if (!photos) errors.push({ field: "photos", error: "Complete las fotos" });
+
+    res.status(400).send({ success: false, errors });
   }
 };
 

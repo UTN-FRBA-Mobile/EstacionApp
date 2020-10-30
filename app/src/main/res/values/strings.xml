@@ -19,4 +19,10 @@
     <string name="cancelar_reserva">Cancelar reserva</string>
     <string name="confirmacion_reserva">Se reservó el lugar indicado!</string>
     <string name="confirmacion_reserva_cancelada">Su reserva ha sido cancelada.</string>
+    <string name="logout">Su sesión ha sido cerrada.</string>
+    <string name="location_disabled_text">Debes activar la ubicación para poder ver los lugares libres cercanos.</string>
+    <string name="location_disabled_title">Ubicación desactivada</string>
+    <string name="server_error">Ocurrió un error con el servidor. Intente más tarde.</string>
+    <string name="report_success">Su reporte fue cargado.</string>
+    <string name="report_error">Falló el reporte. Intente nuevamente.</string>
 </resources>

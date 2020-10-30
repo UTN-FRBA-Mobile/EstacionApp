@@ -1,6 +1,6 @@
 package com.example.estacionapp
 
-import android.content.Intent
+import android.Manifest
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -20,9 +20,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.example.estacionapp.auth.AuthActivity
 import androidx.core.content.FileProvider
 import androidx.core.location.LocationManagerCompat
+import com.example.estacionapp.auth.AuthActivity
 import com.example.estacionapp.utils.areEqualTo
 import com.example.estacionapp.utils.toArrayListOfStrings
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -30,6 +30,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.firebase.auth.FirebaseAuth
 import com.squareup.picasso.Picasso
 import io.socket.client.IO
 import io.socket.client.Socket
@@ -77,6 +78,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     private lateinit var dialog: BottomSheetDialog
     private lateinit var photoFile: File
     private lateinit var preferences: SharedPreferences
+    private var currentUser = FirebaseAuth.getInstance().currentUser
 
     companion object {
         private const val LOCATION_PERMISSION_REQUEST_CODE = 1
@@ -96,8 +98,8 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             val currentLatLng: LatLng
             if (!LocationManagerCompat.isLocationEnabled(getSystemService(Context.LOCATION_SERVICE) as LocationManager)) {
                 val dialog = AlertDialog.Builder(this)
-                    .setTitle("Ubicación desactivada")
-                    .setMessage("Debes activar la ubicación para poder ver los lugares libres cercanos")
+                    .setTitle(getString(R.string.location_disabled_title))
+                    .setMessage(getString(R.string.location_disabled_text))
                     .setPositiveButton("OK", null)
                     .create()
                 dialog.show()
@@ -107,9 +109,16 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             }
         }
 
-        this.reportButton.setOnClickListener{
-            reportarSensor()
+        this.reportButton.setOnClickListener {
+            if (currentUser != null) reportarSensor() else startActivity(
+                Intent(
+                    this,
+                    AuthActivity::class.java
+                )
+            )
         }
+
+        if (currentUser == null) this.logoutButton.visibility = View.INVISIBLE else this.logoutButton.visibility = View.VISIBLE
 
         val opts = IO.Options()
         opts.transports = arrayOf(WebSocket.NAME)
@@ -207,7 +216,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         }
 
         view.reservarAhoraButton.setOnClickListener {
-            if (isReserved) cancelParking(view.reservarAhoraButton) else reserveParking(view.reservarAhoraButton)
+            if (currentUser != null) {
+                if (isReserved) cancelParking(view.reservarAhoraButton) else reserveParking(view.reservarAhoraButton)
+            } else {
+                startActivity(Intent(this, AuthActivity::class.java))
+            }
         }
 
         view.address.text = getAddress(marker.position)
@@ -220,11 +233,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     private fun setUpMap() {
         if (ActivityCompat.checkSelfPermission(
                 this,
-                android.Manifest.permission.ACCESS_FINE_LOCATION
+                Manifest.permission.ACCESS_FINE_LOCATION
             ) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(
                 this,
-                arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
                 LOCATION_PERMISSION_REQUEST_CODE
             )
             return
@@ -322,6 +335,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         Toast.makeText(this, R.string.confirmacion_reserva_cancelada, Toast.LENGTH_SHORT).show()
     }
 
+    fun logout(view: View) {
+        FirebaseAuth.getInstance().signOut()
+        currentUser = null
+        this.logoutButton.visibility = View.GONE
+        Toast.makeText(this, R.string.logout, Toast.LENGTH_SHORT).show()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
         socket.disconnect()
@@ -352,7 +372,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
     private fun uploadImage(file : File) {
         val retrofit: Retrofit = getRetrofit()
-        val currentUserId = "113"
+        val currentUserId = currentUser?.uid ?: "404"
 
         val requestBody: RequestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
         val imagePart: MultipartBody.Part = MultipartBody.Part.createFormData("image", file.name, requestBody)
@@ -364,13 +384,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
 
         call.enqueue(object : retrofit2.Callback<ResponseBody> {
             override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
-                val message = if (response.isSuccessful) "Su reporte fue cargado" else "Falló el reporte. Intente nuevamente."
+                val message = if (response.isSuccessful) getString(R.string.report_success) else getString(R.string.report_error)
                 Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
             }
 
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                 Toast
-                    .makeText(applicationContext, "Ocurrió un error con el servidor", Toast.LENGTH_SHORT)
+                    .makeText(applicationContext, getString(R.string.server_error), Toast.LENGTH_SHORT)
                     .show()
             }
         })

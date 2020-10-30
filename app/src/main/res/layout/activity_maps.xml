@@ -11,6 +11,18 @@
         android:layout_height="match_parent"
         tools:context=".MapsActivity">
     </fragment>
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/logoutButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="14dp"
+        android:layout_gravity="end"
+        android:backgroundTint="@color/white"
+        android:clickable="true"
+        app:borderWidth="0dp"
+        android:onClick="logout"
+        android:src="@drawable/ic_baseline_exit_to_app_24"
+        app:maxImageSize="30dp"/>
 
     <RelativeLayout
         android:layout_height="wrap_content"
