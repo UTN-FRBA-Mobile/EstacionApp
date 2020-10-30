@@ -9,42 +9,46 @@
     android:background="@color/white"
     >
 
-    <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+    <de.hdodenhof.circleimageview.CircleImageView
         android:id="@+id/rounded_coche_image"
         android:layout_width="250dp"
         android:layout_height="250dp"
-        android:src="@drawable/coche"
-        app:civ_border_color="#FF000000"
-        app:civ_border_width="5dp" />
+        android:src="@drawable/coche"/>
 
     <EditText
         android:id="@+id/txtUser"
-        android:layout_width="250dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
+        android:layout_marginHorizontal="40dp"
+        android:layout_marginVertical="20dp"
         android:backgroundTint="@color/primaryDark"
-        android:hint="Email"
+        android:hint="@string/email"
         android:inputType="textEmailAddress"
-        android:textCursorDrawable="@null"></EditText>
+        android:textCursorDrawable="@null" />
 
     <EditText
         android:id="@+id/txtPassword"
-        android:layout_width="250dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
+        android:layout_marginHorizontal="40dp"
+        android:layout_marginVertical="20dp"
         android:backgroundTint="@color/primaryDark"
-        android:hint="Contraseña"
+        android:hint="@string/password"
         android:inputType="textPassword"
-        android:textCursorDrawable="@null"></EditText>
+        android:textCursorDrawable="@null" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/okButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:background="@color/accent"
+        android:layout_width="280dp"
+        android:tag="@+id/positionId"
+        android:layout_height="56dp"
+        app:cornerRadius="23dp"
+        android:theme="@style/AppTheme"
+        android:layout_marginVertical="10dp"
+        android:layout_gravity="center_horizontal"
         android:onClick="login"
-        android:text="Iniciar sesión"
-        android:textColor="@android:color/white" />
+        android:text="@string/login"
+        />
 
     <TextView
         android:layout_width="match_parent"
@@ -53,7 +57,7 @@
         android:backgroundTint="@color/primaryDark"
         android:gravity="center_horizontal"
         android:onClick="forgotPassword"
-        android:text="¿Olvidaste tú contraseña?" />
+        android:text="@string/forget_password" />
 
     <TextView
         android:layout_width="match_parent"
@@ -62,7 +66,9 @@
         android:backgroundTint="@color/primaryDark"
         android:gravity="center_horizontal"
         android:onClick="register"
-        android:text="Registrar"
+        android:text="@string/registrarme"
+        android:textStyle="bold"
+        android:textColor="@color/primary"
         />
 
     <ProgressBar
@@ -72,6 +78,5 @@
         android:layout_height="wrap_content"
         android:visibility="gone"
         android:indeterminate="true"/>
-
 
 </LinearLayout>

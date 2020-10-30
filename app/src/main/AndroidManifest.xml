@@ -41,15 +41,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".AuthActivity"
+            android:name=".auth.AuthActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         </activity>
         <activity
-            android:name=".ForgotPasswordActivity"
+            android:name=".auth.ForgotPasswordActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         </activity>
         <activity
-            android:name=".RegisterActivity"
+            android:name=".auth.RegisterActivity"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar">
         </activity>
     </application>

@@ -1,10 +1,9 @@
-package com.example.estacionapp
+package com.example.estacionapp.auth
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
 import android.util.Log
@@ -12,19 +11,16 @@ import android.view.View
 import android.widget.EditText
 import android.widget.ProgressBar
 import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
+import com.example.estacionapp.MapsActivity
+import com.example.estacionapp.R
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.firestore.FirebaseFirestore
-
-
-
 
 class AuthActivity : AppCompatActivity() {
 
     private lateinit var txtUser: EditText
     private lateinit var txtPassword: EditText
     private lateinit var progressBar: ProgressBar
-
-
     private lateinit var auth: FirebaseAuth
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -52,23 +48,15 @@ class AuthActivity : AppCompatActivity() {
         //initialData() //Solo correr sino se tienen datos en Firestore.
     }
 
-    fun forgotPassword(view: View) {
-        startActivity(Intent(this, ForgotPasswordActivity::class.java))
-    }
+    fun forgotPassword(view: View) = startActivity(Intent(this, ForgotPasswordActivity::class.java))
 
-    fun register(view: View) {
-        startActivity(Intent(this, RegisterActivity::class.java))
-    }
+    fun register(view: View) = startActivity(Intent(this, RegisterActivity::class.java))
 
-    fun login(view: View) {
-        loginUser()
-    }
+    fun login(view: View) = loginUser()
 
     private fun loginUser() {
         val user: String = txtUser.text.toString()
         val password: String = txtPassword.text.toString()
-//        val user = "alvaro.arando@gmail.com"
-//        val password = "123456"
 
         if (!TextUtils.isEmpty(user) && !TextUtils.isEmpty(password)) {
             progressBar.visibility = View.VISIBLE
@@ -78,17 +66,16 @@ class AuthActivity : AppCompatActivity() {
                     if (task.isSuccessful) {
                         action()
                     } else {
-                        Toast.makeText(this, "Error en la Autenticación", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this, getString(R.string.login_error), Toast.LENGTH_LONG).show()
                         progressBar.visibility = View.INVISIBLE
                     }
                 }
-
+        } else {
+            Toast.makeText(this, getString(R.string.empty_fields), Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun action() {
-        startActivity(Intent(this, MapsActivity::class.java))
-    }
+    private fun action() = startActivity(Intent(this, MapsActivity::class.java))
 }
 /**
 
