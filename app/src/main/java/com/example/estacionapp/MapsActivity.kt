@@ -1,6 +1,8 @@
 package com.example.estacionapp
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.location.Address
@@ -8,6 +10,8 @@ import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
 import android.os.Bundle
+import android.os.Environment
+import android.provider.MediaStore
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
@@ -15,17 +19,14 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.content.FileProvider
 import androidx.core.location.LocationManagerCompat
+import com.example.estacionapp.utils.areEqualTo
+import com.example.estacionapp.utils.toArrayListOfStrings
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
-import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
-import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.gms.maps.*
+import com.google.android.gms.maps.model.*
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.squareup.picasso.Picasso
 import io.socket.client.IO
@@ -34,19 +35,32 @@ import io.socket.emitter.Emitter
 import io.socket.engineio.client.transports.WebSocket
 import kotlinx.android.synthetic.main.activity_maps.*
 import kotlinx.android.synthetic.main.layout_bottom_sheet.view.*
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.MultipartBody
+import okhttp3.OkHttpClient
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import okhttp3.ResponseBody
 import org.json.JSONArray
 import org.json.JSONObject
+import retrofit2.Call
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
+import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
 
-fun Marker.areEqualTo(otherMarker: Marker?) = otherMarker != null && this.position == otherMarker.position
-fun Marker.areEqualTo(latLng: LatLng?) = latLng != null && this.position == latLng
-fun Marker.areEqualTo(positionObject: JSONObject?): Boolean = positionObject != null && this.position.latitude == positionObject.getDouble("latitude") && this.position.longitude == positionObject.getDouble("longitude")
+private const val REQUEST_CODE = 42
 
-fun JSONArray.toArrayListOfStrings(): ArrayList<String> {
-    val photos: ArrayList<String> = arrayListOf<String>()
-    for (j in 0 until this.length()) photos.add(this[j] as String)
-    return photos
+fun getCameraUpdate(location: LatLng): CameraUpdate {
+    val cameraPosition = CameraPosition.builder()
+        .zoom(16F)
+        .tilt(45F)
+        .target(LatLng(location.latitude, location.longitude))
+        .build()
+    return CameraUpdateFactory.newCameraPosition(cameraPosition)
 }
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
@@ -59,6 +73,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
     private var positions: ArrayList<Pair<Marker, ArrayList<String>>> = ArrayList()
     private var reservedPosition: Marker? = null
     private lateinit var dialog: BottomSheetDialog
+    private lateinit var photoFile: File
     private lateinit var preferences: SharedPreferences
 
     companion object {
@@ -86,12 +101,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 dialog.show()
             } else if (lastLocation !== null) {
                 currentLatLng = LatLng(lastLocation!!.latitude, lastLocation!!.longitude)
-                map.animateCamera(CameraUpdateFactory.newLatLngZoom(currentLatLng, 16f))
+                map.animateCamera(getCameraUpdate(currentLatLng))
             }
         }
 
         this.reportButton.setOnClickListener{
-            //open fragment to report
+            reportarSensor()
         }
 
         val opts = IO.Options()
@@ -146,15 +161,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         }
     }
 
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
         map.setOnMarkerClickListener(this)
@@ -233,14 +239,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                     .putFloat("lastLatitude", location.latitude.toFloat())
                     .putFloat("lastLongitude", location.longitude.toFloat())
                     .apply()
-                map.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLng(location.latitude, location.longitude), 16f))
+
+                map.animateCamera(getCameraUpdate(LatLng(location.latitude, location.longitude)))
             } else {
                 val locationPreferences = LatLng(
                     preferences.getFloat("lastLatitude", 0F).toDouble(),
                     preferences.getFloat("lastLongitude", 0F).toDouble()
                 )
                 if (locationPreferences.latitude != .0 && locationPreferences.longitude != .0) {
-                    map.animateCamera(CameraUpdateFactory.newLatLngZoom(locationPreferences, 16f))
+                    map.animateCamera(getCameraUpdate(locationPreferences))
                 }
             }
         }
@@ -317,5 +324,60 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         super.onDestroy()
         socket.disconnect()
         socket.off("locations", onNewParking)
+    }
+
+    private fun reportarSensor() {
+        val takePictureIntent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        photoFile = getPhotoFile()
+        val fileProvider = FileProvider.getUriForFile(this, "com.example.fileprovider", photoFile)
+        takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, fileProvider)
+
+        if (takePictureIntent.resolveActivity(this.packageManager) != null)
+            startActivityForResult(takePictureIntent, REQUEST_CODE)
+        else
+            Toast.makeText(this,"Unable to open camera", Toast.LENGTH_LONG).show()
+    }
+
+    private fun getPhotoFile(): File {
+        val storageDirectory = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
+        return File.createTempFile("report-${Date()}", ".jpg", storageDirectory)
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) uploadImage(photoFile)
+        else super.onActivityResult(requestCode, resultCode, data)
+    }
+
+    private fun uploadImage(file : File) {
+        val retrofit: Retrofit = getRetrofit()
+        val currentUserId = "113"
+
+        val requestBody: RequestBody = file.asRequestBody("image/*".toMediaTypeOrNull())
+        val imagePart: MultipartBody.Part = MultipartBody.Part.createFormData("image", file.name, requestBody)
+        val userIdPart: RequestBody = currentUserId.toRequestBody("text/plain".toMediaTypeOrNull())
+
+        val call: Call<ResponseBody> = retrofit
+            .create(UploadApis::class.java)
+            .uploadImage(imagePart, userIdPart)
+
+        call.enqueue(object : retrofit2.Callback<ResponseBody> {
+            override fun onResponse(call: Call<ResponseBody>, response: Response<ResponseBody>) {
+                val message = if (response.isSuccessful) "Su reporte fue cargado" else "Falló el reporte. Intente nuevamente."
+                Toast.makeText(applicationContext, message, Toast.LENGTH_SHORT).show()
+            }
+
+            override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
+                Toast
+                    .makeText(applicationContext, "Ocurrió un error con el servidor", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        })
+    }
+
+    private fun getRetrofit() : Retrofit {
+        val okhttpclient : OkHttpClient = OkHttpClient.Builder().build()
+        return Retrofit.Builder()
+            .baseUrl(getString(R.string.server_url))
+            .addConverterFactory(GsonConverterFactory.create()).client(okhttpclient).build()
     }
 }

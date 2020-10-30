@@ -1,5 +1,9 @@
 const router = require("express").Router();
-const { postParkings, getParkings, deleteParking } = require("../controllers/parking");
+const {
+  postParkings,
+  getParkings,
+  deleteParking,
+} = require("../controllers/parking");
 
 router.get("/", getParkings);
 
