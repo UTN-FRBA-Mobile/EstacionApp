@@ -1,6 +1,19 @@
 <resources>
     <string name="app_name">EstacionApp</string>
     <string name="reservar_ahora_button">Reservar ahora</string>
+    <string name="email">Email</string>
+    <string name="password">Contraseña</string>
+    <string name="registrarme">Registrarme</string>
+    <string name="reset_password">Recuperar contraseña</string>
+    <string name="login">Iniciar sesión</string>
+    <string name="forget_password">¿Olvidaste tú contraseña?</string>
+    <string name="forget_password_error">Ocurrió un error al enviar el email</string>
+    <string name="forget_password_success">Te enviamos un mail para recuperar tu contraseña</string>
+    <string name="empty_fields">Complete los campos</string>
+    <string name="empty_email">Complete el email</string>
+    <string name="signup_success">Te enviamos un mail para activar tu cuenta</string>
+    <string name="signup_error">Ocurrió un error al crear su cuenta</string>
+    <string name="login_error">Ocurrió un error al iniciar sesión</string>
     <string name="lugar_libre">Lugar libre</string>
     <string name="lugar_reservado">Lugar reservado</string>
     <string name="cancelar_reserva">Cancelar reserva</string>

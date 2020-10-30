@@ -1,5 +1,6 @@
 package com.example.estacionapp
 
+import android.content.Intent
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
@@ -19,6 +20,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.estacionapp.auth.AuthActivity
 import androidx.core.content.FileProvider
 import androidx.core.location.LocationManagerCompat
 import com.example.estacionapp.utils.areEqualTo

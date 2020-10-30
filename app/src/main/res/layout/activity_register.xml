@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:background="@color/white"
+    >
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:id="@+id/rounded_coche_image"
+        android:layout_width="250dp"
+        android:layout_height="250dp"
+        android:src="@drawable/coche"/>
+
+    <EditText
+        android:id="@+id/txtEmail"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="40dp"
+        android:layout_marginVertical="20dp"
+        android:backgroundTint="@color/primaryDark"
+        android:hint="@string/email"
+        android:inputType="textEmailAddress"
+        android:textCursorDrawable="@null" />
+
+    <EditText
+        android:id="@+id/txtPassword"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="40dp"
+        android:layout_marginVertical="20dp"
+        android:backgroundTint="@color/primaryDark"
+        android:hint="@string/password"
+        android:inputType="textPassword"
+        android:textCursorDrawable="@null" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonUpdate"
+        android:layout_width="280dp"
+        android:tag="@+id/positionId"
+        android:layout_height="56dp"
+        app:cornerRadius="23dp"
+        android:theme="@style/AppTheme"
+        android:layout_marginVertical="10dp"
+        android:layout_gravity="center_horizontal"
+        android:onClick="register"
+        android:text="@string/registrarme"
+        />
+
+    <ProgressBar
+        android:id="@+id/progressBar"
+        style="?android:attr/progressBarStyleHorizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foregroundGravity="bottom"
+        android:indeterminate="true"
+        android:visibility="gone"/>
+
+</LinearLayout>
