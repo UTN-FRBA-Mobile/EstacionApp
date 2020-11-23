@@ -300,7 +300,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         runOnUiThread {
             val marker = map.addMarker(markerOptions)
             Timer().schedule(5000) {
-                marker.remove();
+                runOnUiThread {
+                    marker.remove()
+                }
             }
         }
     }
