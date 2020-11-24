@@ -54,6 +54,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 import java.io.File
 import java.util.*
 import kotlin.collections.ArrayList
+import kotlin.concurrent.schedule
 
 private const val REQUEST_CODE = 42
 
@@ -169,6 +170,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             val deletedMarker = positions.find { it.first.areEqualTo(deletedPosition) && !it.first.areEqualTo(reservedPosition) }
             deletedMarker?.first?.remove()
             positions.remove(deletedMarker)
+            if (deletedMarker !== null) placeTemporalMarkerOnMap(deletedMarker.first.position)
         }
     }
 
@@ -283,6 +285,25 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
             positions.remove(prevMarker)
             val marker = map.addMarker(markerOptions)
             positions.add(Pair(marker, photos))
+        }
+    }
+
+    private fun placeTemporalMarkerOnMap(location: LatLng) {
+        val markerOptions = MarkerOptions().position(location)
+
+        markerOptions.icon(
+            BitmapDescriptorFactory.fromResource(
+                R.drawable.temporal_place
+            )
+        )
+
+        runOnUiThread {
+            val marker = map.addMarker(markerOptions)
+            Timer().schedule(5000) {
+                runOnUiThread {
+                    marker.remove()
+                }
+            }
         }
     }
 
