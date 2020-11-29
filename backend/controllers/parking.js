@@ -4,7 +4,46 @@ const locations = [
     id: 1,
     longitude: -58.5824661,
     latitude: -34.6055728,
-    reserved: false,
+    photos: [
+      "https://www.centediario.com/wp-content/uploads/2016/06/jardin-baleado.jpg",
+      "https://www.centediario.com/wp-content/uploads/2016/06/jardin-baleado.jpg",
+      "https://www.centediario.com/wp-content/uploads/2016/06/jardin-baleado.jpg",
+    ],
+  },
+  {
+    id: 2,
+    latitude: -34.586544,
+    longitude: -58.576842,
+    photos: [
+      "https://www.centediario.com/wp-content/uploads/2016/06/jardin-baleado.jpg",
+      "https://www.centediario.com/wp-content/uploads/2016/06/jardin-baleado.jpg",
+      "https://www.centediario.com/wp-content/uploads/2016/06/jardin-baleado.jpg",
+    ],
+  },
+  {
+    id: 3,
+    latitude: -34.58662,
+    longitude: -58.573194,
+    photos: [
+      "https://www.centediario.com/wp-content/uploads/2016/06/jardin-baleado.jpg",
+      "https://www.centediario.com/wp-content/uploads/2016/06/jardin-baleado.jpg",
+      "https://www.centediario.com/wp-content/uploads/2016/06/jardin-baleado.jpg",
+    ],
+  },
+  {
+    id: 4,
+    latitude: -34.5857789,
+    longitude: -58.5800094,
+    photos: [
+      "https://www.centediario.com/wp-content/uploads/2016/06/jardin-baleado.jpg",
+      "https://www.centediario.com/wp-content/uploads/2016/06/jardin-baleado.jpg",
+      "https://www.centediario.com/wp-content/uploads/2016/06/jardin-baleado.jpg",
+    ],
+  },
+  {
+    id: 5,
+    latitude: -34.584153,
+    longitude: -58.579868,
     photos: [
       "https://www.centediario.com/wp-content/uploads/2016/06/jardin-baleado.jpg",
       "https://www.centediario.com/wp-content/uploads/2016/06/jardin-baleado.jpg",
