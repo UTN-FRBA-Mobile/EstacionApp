@@ -27,4 +27,9 @@
     <string name="report_error">Falló el reporte. Intente nuevamente.</string>
     <string name="open_nav_drawer">Navigation Drawer open</string>
     <string name="close_nav_drawer">Navigation Drawer closed</string>
+    <string name="lugar_no_disponible">Lugar no disponible</string>
+    <string name="logout_menu">Logout</string>
+    <string name="reportar">Reportar sensor</string>
+    <string name="info">INFO</string>
+    <string name="app">APP</string>
 </resources>

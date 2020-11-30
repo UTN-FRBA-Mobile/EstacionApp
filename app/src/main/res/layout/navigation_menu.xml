@@ -2,26 +2,36 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="match_parent"
     android:layout_width="wrap_content">
-    <item android:title="INFO">
+    <item android:title="@string/info">
         <menu>
             <item android:id="@+id/emptyPlace"
                 android:icon="@drawable/empty_place"
-                android:title="Lugar Libre" />
+                android:title="@string/lugar_libre"/>
             <item android:id="@+id/reservedPlace"
                 android:icon="@drawable/reserved_place"
-                android:title="Lugar Reservado" />
+                android:title="@string/lugar_reservado" />
             <item android:id="@+id/temporalPlace"
                 android:icon="@drawable/temporal_place"
-                android:title="Lugar Temporal" />
+                android:title="@string/lugar_no_disponible" />
         </menu>
     </item>
-<item android:title="APP" android:id="@+id/appMenuDrawer">
-    <menu>
-        <item
-            android:id="@+id/logout"
-            android:backgroundTint="@color/black"
-            android:icon="@drawable/ic_baseline_exit_to_app_24"
-            android:title="Log out"/>
-    </menu>
-</item>
+    <item android:title="@string/app" android:id="@+id/appMenuDrawer">
+        <menu>
+            <item
+                android:id="@+id/logout"
+                android:backgroundTint="@color/black"
+                android:icon="@drawable/ic_baseline_exit_to_app_24"
+                android:title="@string/logout_menu"/>
+            <item
+                android:id="@+id/login"
+                android:backgroundTint="@color/black"
+                android:icon="@drawable/ic_baseline_home_24"
+                android:title="@string/login"/>
+            <item
+                android:id="@+id/reportar"
+                android:backgroundTint="@color/black"
+                android:icon="@drawable/ic_baseline_warning_24"
+                android:title="@string/reportar"/>
+        </menu>
+    </item>
 </menu>

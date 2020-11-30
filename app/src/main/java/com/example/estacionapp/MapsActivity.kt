@@ -13,7 +13,6 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
-import android.view.Gravity
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
@@ -133,14 +132,25 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         val drawer: DrawerLayout = findViewById(R.id.drawer_layout)
         val navView: NavigationView = findViewById(R.id.nav_view)
 
-        val toggle: ActionBarDrawerToggle = ActionBarDrawerToggle(this, drawer, toolbar, R.string.open_nav_drawer,R.string.close_nav_drawer)
+        val toggle = object : ActionBarDrawerToggle(
+            this,
+            drawer,
+            toolbar,
+            R.string.open_nav_drawer,
+            R.string.close_nav_drawer
+        ) {
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {
+                super.onDrawerSlide(drawerView, slideOffset)
+                navView.menu.findItem(R.id.logout).isVisible = currentUser != null
+                navView.menu.findItem(R.id.login).isVisible = currentUser == null
+                navView.menu.findItem(R.id.reportar).isVisible = currentUser != null
+            }
+        }
 
         drawer.addDrawerListener(toggle)
         toggle.syncState()
         navView.setNavigationItemSelectedListener(this)
         navView.itemIconTintList = null
-
-        navView.menu.findItem(R.id.logout).isVisible = currentUser != null
         navView.setNavigationItemSelectedListener(this)
 
         val opts = IO.Options()
@@ -453,6 +463,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                     item.isVisible = false
                     if (appMenuDrawer != null) appMenuDrawer.isVisible = false
                     drawer_layout.closeDrawer(GravityCompat.START)
+                    false
+                }
+                R.id.login -> {
+                    startActivity(Intent(this, AuthActivity::class.java))
+                    false
+                }
+                R.id.reportar -> {
+                    reportarSensor()
                     false
                 }
                 else -> true
