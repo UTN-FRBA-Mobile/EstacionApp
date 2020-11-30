@@ -1,53 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout android:layout_height="match_parent"
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.drawerlayout.widget.DrawerLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <fragment xmlns:tools="http://schemas.android.com/tools"
-        android:id="@+id/map"
-        android:name="com.google.android.gms.maps.SupportMapFragment"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:id="@+id/drawer_layout">
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        tools:context=".MapsActivity">
-    </fragment>
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/logoutButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="14dp"
-        android:layout_gravity="end"
-        android:backgroundTint="@color/white"
-        android:clickable="true"
-        app:borderWidth="0dp"
-        android:onClick="logout"
-        android:src="@drawable/ic_baseline_exit_to_app_24"
-        app:maxImageSize="30dp"/>
+        android:layout_height="match_parent">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
-    <RelativeLayout
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:layout_gravity="end|bottom"
-        >
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/reportButton"
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appBarLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="14dp"
-            android:clickable="true"
-            android:focusable="true"
-            android:src="@drawable/alert"
-            app:backgroundTint="#E53935" />
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/myLocationButton"
+            android:layout_height="wrap_content">
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/main_toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="14dp"
-            android:backgroundTint="@color/primary"
-            android:clickable="true"
-            android:src="@drawable/ic_baseline_my_location_24"
-            android:tint="@color/white"
-            app:maxImageSize="30dp"
-            android:layout_below="@id/reportButton"/>
+            android:layout_height="?attr/actionBarSize"
+            android:background="#00FFFFFF"
+            app:layout_anchor="@id/appBarLayout"
+            app:layout_anchorGravity="center">
+
+        </androidx.appcompat.widget.Toolbar>
+
+            <fragment
+                android:id="@+id/map"
+                android:name="com.google.android.gms.maps.SupportMapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_below="@id/main_toolbar"
+                android:layout_gravity="bottom"
+                tools:context=".MapsActivity">
+            </fragment>
     </RelativeLayout>
-</FrameLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <FrameLayout android:layout_height="match_parent"
+        android:layout_width="match_parent">
+
+        <RelativeLayout
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:layout_gravity="end|bottom"
+            >
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/reportButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="14dp"
+                android:clickable="true"
+                android:focusable="true"
+                android:src="@drawable/alert"
+                app:backgroundTint="#E53935" />
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/myLocationButton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="14dp"
+                android:backgroundTint="@color/primary"
+                android:clickable="true"
+                android:src="@drawable/ic_baseline_my_location_24"
+                android:tint="@color/white"
+                app:maxImageSize="30dp"
+                android:layout_below="@id/reportButton"/>
+
+        </RelativeLayout>
+    </FrameLayout>
+
+    <com.google.android.material.navigation.NavigationView
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        app:menu="@layout/navigation_menu"
+        android:layout_gravity="start"
+        android:id="@+id/nav_view"/>
+
+</androidx.drawerlayout.widget.DrawerLayout>

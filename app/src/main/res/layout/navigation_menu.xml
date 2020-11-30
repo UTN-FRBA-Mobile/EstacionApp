@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_height="match_parent"
+    android:layout_width="wrap_content">
+    <item android:title="INFO">
+        <menu>
+            <item android:id="@+id/emptyPlace"
+                android:icon="@drawable/empty_place"
+                android:title="Lugar Libre" />
+            <item android:id="@+id/reservedPlace"
+                android:icon="@drawable/reserved_place"
+                android:title="Lugar Reservado" />
+            <item android:id="@+id/temporalPlace"
+                android:icon="@drawable/temporal_place"
+                android:title="Lugar Temporal" />
+        </menu>
+    </item>
+<item android:title="APP" android:id="@+id/appMenuDrawer">
+    <menu>
+        <item
+            android:id="@+id/logout"
+            android:backgroundTint="@color/black"
+            android:icon="@drawable/ic_baseline_exit_to_app_24"
+            android:title="Log out"/>
+    </menu>
+</item>
+</menu>

@@ -25,4 +25,6 @@
     <string name="server_error">Ocurrió un error con el servidor. Intente más tarde.</string>
     <string name="report_success">Su reporte fue cargado.</string>
     <string name="report_error">Falló el reporte. Intente nuevamente.</string>
+    <string name="open_nav_drawer">Navigation Drawer open</string>
+    <string name="close_nav_drawer">Navigation Drawer closed</string>
 </resources>

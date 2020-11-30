@@ -13,15 +13,22 @@ import android.location.LocationManager
 import android.os.Bundle
 import android.os.Environment
 import android.provider.MediaStore
+import android.view.Gravity
+import android.view.MenuItem
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
 import androidx.core.location.LocationManagerCompat
+import androidx.core.view.GravityCompat
+import androidx.core.view.isVisible
+import androidx.drawerlayout.widget.DrawerLayout
 import com.example.estacionapp.auth.AuthActivity
 import com.example.estacionapp.utils.areEqualTo
 import com.example.estacionapp.utils.toArrayListOfStrings
@@ -30,6 +37,7 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.*
 import com.google.android.gms.maps.model.*
 import com.google.android.material.bottomsheet.BottomSheetDialog
+import com.google.android.material.navigation.NavigationView
 import com.google.firebase.auth.FirebaseAuth
 import com.squareup.picasso.Picasso
 import io.socket.client.IO
@@ -38,6 +46,7 @@ import io.socket.emitter.Emitter
 import io.socket.engineio.client.transports.WebSocket
 import kotlinx.android.synthetic.main.activity_maps.*
 import kotlinx.android.synthetic.main.layout_bottom_sheet.view.*
+import kotlinx.android.synthetic.main.navigation_menu.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
@@ -67,7 +76,8 @@ fun getCameraUpdate(location: LatLng): CameraUpdate {
     return CameraUpdateFactory.newCameraPosition(cameraPosition)
 }
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener {
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarkerClickListener,
+    NavigationView.OnNavigationItemSelectedListener {
 
     private lateinit var map: GoogleMap
     private lateinit var fusedLocationClient: FusedLocationProviderClient
@@ -118,8 +128,20 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
                 )
             )
         }
+        val toolbar: Toolbar = findViewById(R.id.main_toolbar)
+        setSupportActionBar(toolbar)
+        val drawer: DrawerLayout = findViewById(R.id.drawer_layout)
+        val navView: NavigationView = findViewById(R.id.nav_view)
 
-        if (currentUser == null) this.logoutButton.visibility = View.INVISIBLE else this.logoutButton.visibility = View.VISIBLE
+        val toggle: ActionBarDrawerToggle = ActionBarDrawerToggle(this, drawer, toolbar, R.string.open_nav_drawer,R.string.close_nav_drawer)
+
+        drawer.addDrawerListener(toggle)
+        toggle.syncState()
+        navView.setNavigationItemSelectedListener(this)
+        navView.itemIconTintList = null
+
+        navView.menu.findItem(R.id.logout).isVisible = currentUser != null
+        navView.setNavigationItemSelectedListener(this)
 
         val opts = IO.Options()
         opts.transports = arrayOf(WebSocket.NAME)
@@ -179,6 +201,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         map.setOnMarkerClickListener(this)
         setUpMap()
     }
+
 
     override fun onMarkerClick(marker: Marker): Boolean {
         dialog = BottomSheetDialog(this)
@@ -356,10 +379,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         Toast.makeText(this, R.string.confirmacion_reserva_cancelada, Toast.LENGTH_SHORT).show()
     }
 
-    fun logout(view: View) {
+    fun logout() {
         FirebaseAuth.getInstance().signOut()
         currentUser = null
-        this.logoutButton.visibility = View.GONE
         Toast.makeText(this, R.string.logout, Toast.LENGTH_SHORT).show()
     }
 
@@ -422,5 +444,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleMap.OnMarker
         return Retrofit.Builder()
             .baseUrl(getString(R.string.server_url))
             .addConverterFactory(GsonConverterFactory.create()).client(okhttpclient).build()
+    }
+
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+            return when (item.itemId) {
+                R.id.logout -> {
+                    logout()
+                    item.isVisible = false
+                    if (appMenuDrawer != null) appMenuDrawer.isVisible = false
+                    drawer_layout.closeDrawer(GravityCompat.START)
+                    false
+                }
+                else -> true
+            }
     }
 }
