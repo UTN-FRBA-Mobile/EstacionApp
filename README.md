@@ -27,7 +27,9 @@ EstacionApp requiere de los accesso a la ubicación del dispositivo y a la cáma
 <div style="display: flex">
 <img src="https://imgur.com/JHf1eMg.png" width="300" />
 <img src="https://imgur.com/atfBMCY.png" width="300" />
-<img src="https://imgur.com/wcf2vco.png" width="300" />
+<img src="https://imgur.com/AcXiE4d.png" width="300" />
+<img src="https://imgur.com/3X9YFzV.png" width="300" />
+<img src="https://imgur.com/W4z3Hbq.png" width="300" />
 <img src="https://imgur.com/xglgjo8.png" width="300" />
 <img src="https://imgur.com/EcErzJa.png" width="300" />
 <img src="https://imgur.com/Zm9oWjs.png" width="300" />
